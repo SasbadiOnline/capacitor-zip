@@ -1,0 +1,47 @@
+{
+  "name": "@sasbadi-online/capacitor-zip",
+  "version": "1.0.4-td.1.0.4",
+  "description": "Zip plugin",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "scripts": {
+    "build": "npm run clean && tsc",
+    "clean": "rm -rf ./dist",
+    "watch": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "Sasbadi Online",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/core": "latest"
+  },
+  "devDependencies": {
+    "typescript": "^2.6.2"
+  },
+  "files": [
+    "dist/",
+    "ios/",
+    "android/",
+    "TransmissionDynamicsCapacitorZip.podspec"
+  ],
+  "keywords": [
+    "capacitor",
+    "plugin",
+    "native"
+  ],
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SasbadiOnline/capacitor-zip"
+  },
+  "bugs": {
+    "url": "https://github.com/SasbadiOnline/capacitor-zip/issues"
+  }
+}
