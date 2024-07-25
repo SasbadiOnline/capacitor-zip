@@ -1,17 +1,20 @@
 package co.fitcom.capacitor;
 
+import android.util.Log;
+
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
 import net.lingala.zip4j.model.ZipParameters;
+import net.lingala.zip4j.model.enums.CompressionLevel;
+import net.lingala.zip4j.model.enums.CompressionMethod;
 import net.lingala.zip4j.progress.ProgressMonitor;
-import net.lingala.zip4j.util.Zip4jConstants;
 
 import java.io.File;
 import java.util.List;
@@ -53,7 +56,7 @@ public class ZipPlugin extends Plugin {
             ZipFile zipFile = new ZipFile(archive);
             zipFile.setRunInThread(true);
             if (zipFile.isEncrypted() && !password.equals("")) {
-                zipFile.setPassword(password);
+                zipFile.setPassword(password.toCharArray());
             }
 
             File d = new File(destination);
@@ -67,7 +70,6 @@ public class ZipPlugin extends Plugin {
                     if (d.exists()) {
                         File f = new File(destination, header.getFileName());
                         f.mkdirs();
-                        zipFile.extractFile(header, f.toString());
                     }
                 }
             }
@@ -75,7 +77,7 @@ public class ZipPlugin extends Plugin {
             int progress;
             JSObject statusObject = new JSObject();
             zipFile.extractAll(destination);
-            while (monitor.getState() == ProgressMonitor.STATE_BUSY) {
+            while (monitor.getState() == ProgressMonitor.State.BUSY) {
                 progress = monitor.getPercentDone();
                 statusObject.put("status", "progressing");
                 statusObject.put("progress", progress);
@@ -83,9 +85,9 @@ public class ZipPlugin extends Plugin {
                 call.resolve(statusObject);
             }
 
-            int result = monitor.getResult();
+            ProgressMonitor.Result result = monitor.getResult();
             switch (result) {
-                case ProgressMonitor.RESULT_SUCCESS:
+                case SUCCESS:
                     JSObject object = new JSObject();
                     object.put("status", "completed");
                     object.put("completed", true);
@@ -93,10 +95,10 @@ public class ZipPlugin extends Plugin {
                     object.put("path", destination);
                     call.resolve(object);
                     break;
-                case ProgressMonitor.RESULT_ERROR:
+                case ERROR:
                     call.error(monitor.getException().getMessage());
                     break;
-                case ProgressMonitor.RESULT_CANCELLED:
+                case CANCELLED:
                     call.error("Cancelled");
             }
         } catch (ZipException e) {
@@ -144,17 +146,17 @@ public class ZipPlugin extends Plugin {
             ZipFile zipFile = new ZipFile(dest);
             zipFile.setRunInThread(true);
             ZipParameters parameters = new ZipParameters();
-            parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-            parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
+            parameters.setCompressionMethod(CompressionMethod.DEFLATE);
+            parameters.setCompressionLevel(CompressionLevel.NORMAL);
             if (password != null) {
-                zipFile.setPassword(password);
+                zipFile.setPassword(password.toCharArray());
             }
-            zipFile.createZipFileFromFolder(folder, parameters, false, 0);
+            zipFile.createSplitZipFileFromFolder(folder, parameters, false, 0);
             int progress;
             JSObject statusObject = new JSObject();
             ProgressMonitor monitor = zipFile.getProgressMonitor();
 
-            while (monitor.getState() == ProgressMonitor.STATE_BUSY) {
+            while (monitor.getState() == ProgressMonitor.State.BUSY) {
                 progress = monitor.getPercentDone();
                 statusObject.put("status", "progressing");
                 statusObject.put("progress", progress);
@@ -162,17 +164,17 @@ public class ZipPlugin extends Plugin {
                 call.success(statusObject);
             }
 
-            int result = monitor.getResult();
+            ProgressMonitor.Result result = monitor.getResult();
             switch (result) {
-                case ProgressMonitor.RESULT_SUCCESS:
+                case SUCCESS:
                     JSObject object = new JSObject();
                     object.put("status", "completed");
                     call.success(object);
                     break;
-                case ProgressMonitor.RESULT_ERROR:
+                case ERROR:
                     call.error(monitor.getException().getMessage());
                     break;
-                case ProgressMonitor.RESULT_CANCELLED:
+                case CANCELLED:
                     call.error("cancelled");
             }
 

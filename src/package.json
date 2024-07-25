@@ -1,6 +1,6 @@
 {
   "name": "@iqtech84/capacitor-zip",
-  "version": "1.0.5-td.1.0.5",
+  "version": "1.0.6-td.1.0.6",
   "description": "Zip plugin",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
